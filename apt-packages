@@ -2,3 +2,5 @@ libjpeg-dev
 zlib1g-dev
 libpng-dev
 python3-distutils
+python3-dev
+build-essential
