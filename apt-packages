@@ -1,6 +1,7 @@
+libgl1
+libglib2.0-0
+python3-distutils
 libjpeg-dev
 zlib1g-dev
 libpng-dev
-python3-distutils
-python3-dev
-build-essential
+libfreetype6-dev
