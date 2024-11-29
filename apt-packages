@@ -1,6 +1,7 @@
 libgl1
 libglib2.0-0
 python3-distutils
+python3.12-distutils
 libjpeg-dev
 zlib1g-dev
 libpng-dev
