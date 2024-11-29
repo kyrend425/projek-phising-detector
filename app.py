@@ -9,7 +9,6 @@ from tensorflow.keras.models import load_model
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix
 import plotly.express as px
-import plotly.figure_factory as ff
 
 # --- Load Pretrained Model, Tokenizer, and Scaler ---
 model = load_model("model.h5")
@@ -39,50 +38,21 @@ def predict_url(url):
 
 # --- Model Evaluation ---
 def evaluate_model(y_true, y_pred):
-    st.write("### Hasil Evaluasi Model")
-    st.metric("Akurasi", f"{accuracy_score(y_true, y_pred):.2%}")
-    st.metric("Precision (macro)", f"{precision_score(y_true, y_pred, average='macro'):.2%}")
-    st.metric("Recall (macro)", f"{recall_score(y_true, y_pred, average='macro'):.2%}")
-    st.metric("F1-Score (macro)", f"{f1_score(y_true, y_pred, average='macro'):.2%}")
+    st.write(f"Akurasi: {accuracy_score(y_true, y_pred):.2f}")
+    st.write(f"Precision (macro): {precision_score(y_true, y_pred, average='macro'):.2f}")
+    st.write(f"Recall (macro): {recall_score(y_true, y_pred, average='macro'):.2f}")
+    st.write(f"F1-Score (macro): {f1_score(y_true, y_pred, average='macro'):.2f}")
+    st.write("Confusion Matrix:")
+    st.write(confusion_matrix(y_true, y_pred, labels=['good', 'bad']))
 
-    # Visualize Confusion Matrix
-    cm = confusion_matrix(y_true, y_pred, labels=['good', 'bad'])
-    fig = ff.create_annotated_heatmap(
-        z=cm,
-        x=['good', 'bad'],
-        y=['good', 'bad'],
-        annotation_text=cm.astype(str),
-        colorscale="Blues"
-    )
-    fig.update_layout(title="Confusion Matrix", xaxis_title="Predicted", yaxis_title="True")
-    st.plotly_chart(fig)
-
-# --- Sidebar and Navigation ---
-st.sidebar.title("🔍 Deteksi URL Phishing")
-st.sidebar.write("Aplikasi untuk mendeteksi URL phishing menggunakan Machine Learning.")
-menu = st.sidebar.radio("Navigasi", ["🏠 Home", "📊 EDA", "🔮 Prediksi URL", "📈 Evaluasi Model"])
-
-# --- Home Page ---
-if menu == "🏠 Home":
-    st.title("🌐 Deteksi URL Phishing")
-    st.markdown(
-        """
-        **Selamat datang di aplikasi Deteksi URL Phishing!**  
-        Aplikasi ini menggunakan model Machine Learning untuk:
-        - Mengeksplorasi dataset URL.
-        - Memprediksi apakah sebuah URL adalah *phishing* atau tidak.
-        - Mengevaluasi performa model berdasarkan dataset yang diunggah.
-
-        Mulailah dengan memilih menu di sidebar! 🚀
-        """
-    )
-    st.image("https://miro.medium.com/v2/resize:fit:1200/format:webp/1*4eMO2p28USFfV_CVaHK_rw.png", use_column_width=True)
+# --- Multipage Navigation ---
+menu = st.sidebar.radio("Navigasi", ["EDA", "Prediksi URL", "Evaluasi Model"])
 
 # --- EDA Page ---
-elif menu == "📊 EDA":
-    st.title("📊 Eksplorasi Data")
+if menu == "EDA":
+    st.title("Eksplorasi Data")
     
-    uploaded_file = st.file_uploader("Unggah dataset untuk EDA (CSV/Excel)", type=["csv", "xlsx"])
+    uploaded_file = st.file_uploader("Unggah dataset untuk EDA", type=["csv", "xlsx"])
     if uploaded_file:
         if uploaded_file.name.endswith('.csv'):
             data = pd.read_csv(uploaded_file)
@@ -111,8 +81,8 @@ elif menu == "📊 EDA":
             st.plotly_chart(fig)
 
 # --- Prediction Page ---
-elif menu == "🔮 Prediksi URL":
-    st.title("🔮 Prediksi URL Phishing")
+elif menu == "Prediksi URL":
+    st.title("Prediksi URL Phishing")
     
     url_input = st.text_input("Masukkan URL", "")
     if st.button("Prediksi"):
@@ -120,13 +90,10 @@ elif menu == "🔮 Prediksi URL":
             st.warning("Silakan masukkan URL yang valid.")
         else:
             result = predict_url(url_input)
-            if result == "bad":
-                st.error(f"❌ Prediksi: **{result.upper()}** (Phishing)")
-            else:
-                st.success(f"✅ Prediksi: **{result.upper()}** (Aman)")
+            st.success(f"Prediksi: {result}")
 
     st.write("---")
-    st.subheader("🔢 Prediksi Batch")
+    st.subheader("Prediksi Batch dari File")
     uploaded_predict_file = st.file_uploader("Unggah file CSV untuk prediksi batch", type=["csv"])
     if uploaded_predict_file:
         batch_data = pd.read_csv(uploaded_predict_file)
@@ -140,10 +107,10 @@ elif menu == "🔮 Prediksi URL":
             st.download_button("Unduh Hasil Prediksi", data=csv, file_name="batch_predictions.csv")
 
 # --- Model Evaluation Page ---
-elif menu == "📈 Evaluasi Model":
-    st.title("📈 Evaluasi Model")
+elif menu == "Evaluasi Model":
+    st.title("Evaluasi Model")
     
-    uploaded_eval_file = st.file_uploader("Unggah dataset untuk evaluasi model (CSV/Excel)", type=["csv", "xlsx"])
+    uploaded_eval_file = st.file_uploader("Unggah dataset untuk evaluasi model", type=["csv", "xlsx"])
     if uploaded_eval_file:
         if uploaded_eval_file.name.endswith('.csv'):
             eval_data = pd.read_csv(uploaded_eval_file)
